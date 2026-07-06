@@ -14,6 +14,7 @@ import { Badge, Card, CardContent, CardHeader, DeadlinePill, EmptyState, StatusB
 import { ActivityList } from '@/components/activity/ActivityList'
 import { TaskDetailModal } from '@/components/tasks/TaskDetailModal'
 import { useData, useCurrentUser } from '@/lib/hooks'
+import { useViewerMode } from '@/lib/auth'
 import { activitySince, deadlineStatus, memberById, myDay, projectById } from '@/lib/selectors'
 import { fmtRelative } from '@/lib/utils'
 import type { Task } from '@/lib/types'
@@ -21,6 +22,7 @@ import type { Task } from '@/lib/types'
 export function MyDay() {
   const data = useData()
   const me = useCurrentUser()
+  const viewer = useViewerMode()
   const [openId, setOpenId] = useState<string | null>(null)
 
   const since1d = subDays(new Date(), 1).toISOString()
@@ -33,7 +35,7 @@ export function MyDay() {
   return (
     <>
       <PageHeader
-        title={`Good day, ${me.name.split(' ')[0]} 👋`}
+        title={viewer ? 'Good day, Team 👋' : `Good day, ${me.name.split(' ')[0]} 👋`}
         subtitle="Your personal focus for today — everything that needs you, in one place."
       />
 

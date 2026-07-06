@@ -2,6 +2,7 @@ import { create } from 'zustand'
 import type { Session } from '@supabase/supabase-js'
 import { isSupabaseConfigured, supabase } from './supabase'
 import { setCanEdit } from './sync'
+import { useStore } from './store'
 
 // Editing is gated by auth: signed-in = editor (can write), everyone else = viewer.
 // When Supabase isn't configured (pure local dev), the app is editable locally.
@@ -22,6 +23,9 @@ function apply(session: Session | null) {
   const canEdit = !!session
   useAuthStore.setState({ session, canEdit })
   setCanEdit(canEdit)
+  // The only account that can edit is Durgesh — pin the identity on sign-in so
+  // greetings / "my" views always read as Durgesh (never a stale switched user).
+  if (canEdit) useStore.getState().setCurrentUser('m-durgesh')
 }
 
 export function initAuth() {
@@ -49,3 +53,10 @@ export async function signOut(): Promise<void> {
 export const useCanEdit = () => useAuthStore((s) => s.canEdit)
 export const useSession = () => useAuthStore((s) => s.session)
 export const cloudEnabled = isSupabaseConfigured
+
+/** True for a read-only cloud viewer (not signed in). Used to show a generic
+ *  "Team" identity instead of any individual's name. */
+export const useViewerMode = () => {
+  const canEdit = useCanEdit()
+  return cloudEnabled && !canEdit
+}

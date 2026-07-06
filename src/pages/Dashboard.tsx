@@ -17,7 +17,7 @@ import { MiniCalendar } from '@/components/dashboard/MiniCalendar'
 import { TaskFormModal } from '@/components/tasks/TaskFormModal'
 import { TaskDetailModal } from '@/components/tasks/TaskDetailModal'
 import { useData, useCurrentUser } from '@/lib/hooks'
-import { useCanEdit } from '@/lib/auth'
+import { useCanEdit, useViewerMode } from '@/lib/auth'
 import {
   dashboardStats,
   deadlineStatus,
@@ -39,12 +39,13 @@ export function Dashboard() {
   const activeProjects = data.projects.filter((p) => !p.isHistorical)
   const approvals = pendingChangeRequests(data)
   const canEdit = useCanEdit()
+  const viewer = useViewerMode()
   const showApprovals = me?.role === 'admin' && canEdit && approvals.length > 0
 
   return (
     <>
       <PageHeader
-        title={`Hi ${me?.name?.split(' ')[0] ?? 'there'} 👋`}
+        title={viewer ? 'Hii Team 👋' : `Hi ${me?.name?.split(' ')[0] ?? 'there'} 👋`}
         subtitle="Here's exactly where we stand today."
         actions={
           canEdit && (

@@ -18,7 +18,7 @@ import {
 import { useData } from '@/lib/hooks'
 import { useStore } from '@/lib/store'
 import { attentionTasks } from '@/lib/selectors'
-import { cloudEnabled } from '@/lib/auth'
+import { cloudEnabled, useCanEdit } from '@/lib/auth'
 import { cn } from '@/lib/utils'
 import { CloudBar } from './CloudBar'
 
@@ -42,6 +42,8 @@ export function Sidebar({ onNavigate }: { onNavigate?: () => void }) {
   const resetDemo = useStore((s) => s.resetDemo)
   const currentUserId = useStore((s) => s.currentUserId)
   const setCurrentUser = useStore((s) => s.setCurrentUser)
+  const canEdit = useCanEdit()
+  const me = data.members.find((m) => m.id === currentUserId)
   const attention = attentionTasks(data).length
 
   return (
@@ -91,21 +93,30 @@ export function Sidebar({ onNavigate }: { onNavigate?: () => void }) {
 
       {/* Footer: user switcher + controls */}
       <div className="border-t border-[var(--border)] p-3 space-y-2">
-        <label className="flex items-center gap-2 rounded-xl bg-[var(--surface-2)] px-3 py-2">
-          <UserCircle2 size={18} className="text-[var(--muted)] shrink-0" />
-          <select
-            value={currentUserId}
-            onChange={(e) => setCurrentUser(e.target.value)}
-            className="w-full bg-transparent text-sm font-medium focus:outline-none cursor-pointer"
-            aria-label="View as"
-          >
-            {data.members.map((m) => (
-              <option key={m.id} value={m.id}>
-                {m.name} {m.role === 'admin' ? '(admin)' : ''}
-              </option>
-            ))}
-          </select>
-        </label>
+        {cloudEnabled ? (
+          <div className="flex items-center gap-2 rounded-xl bg-[var(--surface-2)] px-3 py-2">
+            <UserCircle2 size={18} className="text-[var(--muted)] shrink-0" />
+            <span className="text-sm font-medium truncate">
+              {canEdit ? `${me?.name ?? 'Durgesh'} (admin)` : 'Hii Team'}
+            </span>
+          </div>
+        ) : (
+          <label className="flex items-center gap-2 rounded-xl bg-[var(--surface-2)] px-3 py-2">
+            <UserCircle2 size={18} className="text-[var(--muted)] shrink-0" />
+            <select
+              value={currentUserId}
+              onChange={(e) => setCurrentUser(e.target.value)}
+              className="w-full bg-transparent text-sm font-medium focus:outline-none cursor-pointer"
+              aria-label="View as"
+            >
+              {data.members.map((m) => (
+                <option key={m.id} value={m.id}>
+                  {m.name} {m.role === 'admin' ? '(admin)' : ''}
+                </option>
+              ))}
+            </select>
+          </label>
+        )}
         <div className="flex gap-2">
           <button
             onClick={toggleTheme}

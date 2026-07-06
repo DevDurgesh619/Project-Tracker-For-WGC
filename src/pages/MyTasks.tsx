@@ -4,6 +4,7 @@ import { PageHeader } from '@/components/layout/PageHeader'
 import { Avatar, Card, EmptyState, Select } from '@/components/ui'
 import { TaskTable } from '@/components/tasks/TaskTable'
 import { useData, useCurrentUser } from '@/lib/hooks'
+import { useViewerMode } from '@/lib/auth'
 import { isOverdue, tasksInvolvingMember } from '@/lib/selectors'
 import { daysFromToday } from '@/lib/utils'
 import type { TaskStatus } from '@/lib/types'
@@ -11,6 +12,7 @@ import type { TaskStatus } from '@/lib/types'
 export function MyTasks() {
   const data = useData()
   const me = useCurrentUser()
+  const viewer = useViewerMode()
   const [status, setStatus] = useState<TaskStatus | 'all'>('all')
   const [when, setWhen] = useState<'all' | 'today'>('all')
 
@@ -40,8 +42,8 @@ export function MyTasks() {
         subtitle="Track your own work — start, finish, and log time."
         actions={
           <div className="flex items-center gap-2 rounded-xl bg-[var(--surface)] border border-[var(--border)] px-3 py-1.5">
-            <Avatar member={me} size="sm" />
-            <span className="text-sm font-medium">{me?.name}</span>
+            <Avatar member={viewer ? undefined : me} size="sm" />
+            <span className="text-sm font-medium">{viewer ? 'Team' : me?.name}</span>
           </div>
         }
       />
