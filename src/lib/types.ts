@@ -216,6 +216,9 @@ export interface TimelineData {
   milestones: Milestone[]
   tasks: Task[]
   activity: ActivityEvent[]
+  /** Version of the bundled authoritative seed this graph was built from.
+   *  Used by cloud sync to detect when the app ships newer canonical data. */
+  seedVersion?: number
 }
 
 /** Default ordered lifecycle used when advancing a project. */

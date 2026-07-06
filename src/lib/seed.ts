@@ -84,6 +84,8 @@ const projects: Project[] = [
   { id: 'p-eng', name: 'English App', description: 'CEFR-based English learning app — diagnosis, lesson plans, writing/reading evaluators. Built with Vivek; now working toward V2.', status: 'active', startDate: '2026-06-11', deadline: null, completedDate: null, ownerId: 'm-durgesh', memberIds: ['m-durgesh', 'm-vivek', 'm-prashant'], workingLink: null, color: '#db2777', isHistorical: false },
   { id: 'p-crm', name: 'Zoho CRM Integration', description: 'Set up Zoho CRM for the counselling business — schema, lead flows, follow-ups, Zoho Books. Blocked on the real student data sheet.', status: 'blocked', startDate: '2026-06-08', deadline: null, completedDate: null, ownerId: 'm-durgesh', memberIds: ['m-durgesh', 'm-prashant', 'm-himanshi', 'm-heather'], workingLink: null, color: '#2563eb', isHistorical: false },
   { id: 'p-apptracker', name: 'College Application Tracker', description: 'Tracker for students’ college applications (from Mehak’s data) — universities, essays, onboarding, safe data pipeline. Nearly complete; blocked on data verification.', status: 'blocked', startDate: '2026-06-13', deadline: null, completedDate: null, ownerId: 'm-durgesh', memberIds: ['m-durgesh', 'm-mehak', 'm-heather'], workingLink: null, color: '#0d9488', isHistorical: false },
+  { id: 'p-pm', name: 'Project Management App', description: 'This tool — a project & task timeline for the team (Phase → Milestone → Task, blockers, deadlines, approvals). Built from scratch, now loaded with real project data and handed to Prashant for review.', status: 'active', startDate: '2026-06-22', deadline: null, completedDate: null, ownerId: 'm-durgesh', memberIds: ['m-durgesh', 'm-prashant'], workingLink: 'https://project-tracker-for-wgc.vercel.app', color: '#9333ea', isHistorical: false },
+  { id: 'p-general', name: 'General', description: 'Ad-hoc tasks, planning and notes not tied to a specific project.', status: 'active', startDate: '2026-07-05', deadline: null, completedDate: null, ownerId: 'm-durgesh', memberIds: ['m-durgesh'], workingLink: null, color: '#64748b', isHistorical: false },
 ]
 
 // ── Phases (startedDate/completedDate pre-set so history dates are accurate) ──
@@ -107,6 +109,9 @@ const phases: Phase[] = [
   { id: 'ph-crm-proto', projectId: 'p-crm', kind: 'prototype', label: 'Prototype', order: 0, startedDate: '2026-06-08', completedDate: null },
 
   { id: 'ph-at-proto', projectId: 'p-apptracker', kind: 'prototype', label: 'Prototype', order: 0, startedDate: '2026-06-13', completedDate: null },
+
+  { id: 'ph-pm-proto', projectId: 'p-pm', kind: 'prototype', label: 'Prototype', order: 0, startedDate: '2026-06-22', completedDate: '2026-06-26' },
+  { id: 'ph-pm-fb', projectId: 'p-pm', kind: 'feedback', label: 'Feedback', order: 1, startedDate: '2026-06-30', completedDate: null },
 ]
 
 // ── Milestones ───────────────────────────────────────────────────────────────
@@ -137,6 +142,9 @@ const milestones: Milestone[] = [
   // Application Tracker
   { id: 'ms-at-build', projectId: 'p-apptracker', phaseId: 'ph-at-proto', label: 'Build', order: 0, targetDate: '2026-06-20', completedDate: null },
   { id: 'ms-at-data', projectId: 'p-apptracker', phaseId: 'ph-at-proto', label: 'Data & Versioning', order: 1, targetDate: '2026-06-21', completedDate: null },
+  // Project Management App (this tool)
+  { id: 'ms-pm-proto', projectId: 'p-pm', phaseId: 'ph-pm-proto', label: 'Ideate & build prototype', order: 0, targetDate: '2026-06-26', completedDate: '2026-06-26' },
+  { id: 'ms-pm-data', projectId: 'p-pm', phaseId: 'ph-pm-fb', label: 'Load real project data', order: 0, targetDate: null, completedDate: null },
 ]
 
 // ── Tasks ────────────────────────────────────────────────────────────────────
@@ -183,6 +191,9 @@ const tasks: Task[] = [
   task({ id: 't-web-13', projectId: 'p-web', milestoneId: 'ms-web-golive', title: 'Learn to host the website on Hostinger', dueDate: '2026-06-03' }),
   task({ id: 't-web-14', projectId: 'p-web', milestoneId: 'ms-web-golive', title: 'Take backup (download files); hosting learning complete', dueDate: '2026-06-04' }),
   task({ id: 't-web-15', projectId: 'p-web', milestoneId: 'ms-web-golive', title: 'Press cards, nano-banana images, fix map-pin issue for final review', dueDate: '2026-07-01' }),
+  task({ id: 't-web-17', projectId: 'p-web', milestoneId: 'ms-web-golive', title: 'Press section: national → international, contact + successful-candidate page changes', dueDate: '2026-07-03' }),
+  task({ id: 't-web-18', projectId: 'p-web', milestoneId: 'ms-web-golive', title: 'Smaller content change on successful-candidate page (new cards)', dueDate: '2026-07-05' }),
+  task({ id: 't-web-19', projectId: 'p-web', milestoneId: 'ms-web-golive', title: 'Review Himanshi’s 2024-25 data — confirmed same content as old website', dueDate: '2026-07-05', participantIds: ['m-himanshi'] }),
   task({ id: 't-web-16', projectId: 'p-web', milestoneId: 'ms-web-golive', title: 'Final fixes meeting + deploy live on Hostinger', description: 'Final meet (11–12) to resolve remaining website confusion & issues, then deploy live on Hostinger.', status: 'in_progress', dueDate: '2026-07-03' }),
 
   // ═══ Social Media Automation ═══
@@ -201,6 +212,8 @@ const tasks: Task[] = [
   task({ id: 't-vocab-4', projectId: 'p-vocab', milestoneId: 'ms-vocab-build', title: 'Counsellor/Admin dashboard to change words to learn', dueDate: '2026-06-11' }),
   task({ id: 't-vocab-5', projectId: 'p-vocab', milestoneId: 'ms-vocab-fb', title: 'Add pronunciation, multiple meaning & usage, “I know” button', dueDate: '2026-07-01' }),
   task({ id: 't-vocab-6', projectId: 'p-vocab', milestoneId: 'ms-vocab-fb', title: 'Per-student word choice + counsellor insights (sessions, tests, gaps)', dueDate: '2026-07-02' }),
+  task({ id: 't-vocab-8', projectId: 'p-vocab', milestoneId: 'ms-vocab-fb', title: 'Aditya-specific change — allow unlimited sessions in a day', dueDate: '2026-07-03' }),
+  task({ id: 't-vocab-9', projectId: 'p-vocab', milestoneId: 'ms-vocab-fb', title: 'Fix “I know this” button + add counsellor-dashboard insights (session gaps, left-behind)', dueDate: '2026-07-04' }),
   task({ id: 't-vocab-7', projectId: 'p-vocab', milestoneId: 'ms-vocab-fb', title: 'On hold — still in feedback & changes phase', description: 'Collecting and applying feedback; iterating on changes.', status: 'in_progress', dueDate: '2026-07-02' }),
 
   // ═══ English App ═══
@@ -212,9 +225,12 @@ const tasks: Task[] = [
   task({ id: 't-eng-6', projectId: 'p-eng', milestoneId: 'ms-eng-build', title: 'Test full onboarding, test & diagnosis flow, lesson plan; Vivek (6)', dueDate: '2026-06-22', participantIds: ['m-vivek'] }),
   task({ id: 't-eng-7', projectId: 'p-eng', milestoneId: 'ms-eng-build', title: 'Writing evaluator + reading-comprehension evaluator docs (with Prashant)', dueDate: '2026-06-26', participantIds: ['m-prashant'] }),
   task({ id: 't-eng-8', projectId: 'p-eng', milestoneId: 'ms-eng-v2', title: 'Show prototype to Prashant; discuss good / improve / V2', dueDate: '2026-06-23', participantIds: ['m-vivek', 'm-prashant'] }),
-  task({ id: 't-eng-9', projectId: 'p-eng', milestoneId: 'ms-eng-v2', title: 'Competitive analysis + PPT (prototype, market, roadmap)', dueDate: '2026-06-24', participantIds: ['m-prashant'] }),
-  task({ id: 't-eng-10', projectId: 'p-eng', milestoneId: 'ms-eng-v2', title: 'Word-difficulty doc + 5000-word difficulty/loop excel; discuss V2 with Vivek', dueDate: '2026-06-25', participantIds: ['m-vivek'] }),
+  task({ id: 't-eng-9', projectId: 'p-eng', milestoneId: 'ms-eng-v2', title: 'Competitive / market-analysis research for the English app (meet Prashant)', dueDate: '2026-06-24', participantIds: ['m-prashant'] }),
+  task({ id: 't-eng-13', projectId: 'p-eng', milestoneId: 'ms-eng-v2', title: 'Create English-app deck (current prototype + market research + roadmap)', dueDate: '2026-06-24', participantIds: ['m-prashant'] }),
+  task({ id: 't-eng-10', projectId: 'p-eng', milestoneId: 'ms-eng-v2', title: 'Create word-difficulty document (meet Prashant)', dueDate: '2026-06-25', participantIds: ['m-prashant'] }),
+  task({ id: 't-eng-14', projectId: 'p-eng', milestoneId: 'ms-eng-v2', title: 'Explain word-difficulty doc to Vivek; plan V2 + build 5000-word difficulty/loop excel', dueDate: '2026-06-25', participantIds: ['m-vivek'] }),
   task({ id: 't-eng-11', projectId: 'p-eng', milestoneId: 'ms-eng-v2', title: 'Organize all eng-app docs into a master doc (with Prashant)', dueDate: '2026-07-02', participantIds: ['m-prashant'] }),
+  task({ id: 't-eng-15', projectId: 'p-eng', milestoneId: 'ms-eng-v2', title: 'Data review + final master document from all context (9–10 meet with Prashant)', dueDate: '2026-07-03', participantIds: ['m-prashant'] }),
   task({ id: 't-eng-12', projectId: 'p-eng', milestoneId: 'ms-eng-v2', title: 'Working on V2', description: 'Building the next version of the English app.', status: 'in_progress', dueDate: '2026-07-02' }),
 
   // ═══ Zoho CRM Integration ═══
@@ -237,6 +253,18 @@ const tasks: Task[] = [
   task({ id: 't-at-6', projectId: 'p-apptracker', milestoneId: 'ms-at-build', title: 'Multi-student onboarding + student essay-editing UI', dueDate: '2026-06-20' }),
   task({ id: 't-at-7', projectId: 'p-apptracker', milestoneId: 'ms-at-data', title: 'Add universities (LLM, MBA, UG) with official data + counsellor review/versioning', dueDate: '2026-06-21' }),
   blocked({ id: 't-at-8', projectId: 'p-apptracker', milestoneId: 'ms-at-data', title: 'Blocked: need someone to verify fetched university data', description: 'App is otherwise more or less complete; some refinement left after data is verified.', dueDate: '2026-06-21', reason: 'Need someone to verify the fetched university data and confirm it’s correct before putting it in the system.', waitingOnId: 'm-heather' }),
+
+  // ═══ Project Management App (this tool) ═══
+  task({ id: 't-pm-1', projectId: 'p-pm', milestoneId: 'ms-pm-proto', title: 'Ideation & planning for the project-management app', dueDate: '2026-06-22' }),
+  task({ id: 't-pm-2', projectId: 'p-pm', milestoneId: 'ms-pm-proto', title: 'Start building the UI', dueDate: '2026-06-24' }),
+  task({ id: 't-pm-3', projectId: 'p-pm', milestoneId: 'ms-pm-proto', title: 'Basic app prototype ready (look & feel; no real data yet)', dueDate: '2026-06-26' }),
+  task({ id: 't-pm-4', projectId: 'p-pm', milestoneId: 'ms-pm-data', title: 'Start adding projects — Done / In-progress / day-wise tasks (~10%)', dueDate: '2026-06-30' }),
+  task({ id: 't-pm-5', projectId: 'p-pm', milestoneId: 'ms-pm-data', title: 'Log & add the first 3 projects’ real data', dueDate: '2026-07-03' }),
+  task({ id: 't-pm-6', projectId: 'p-pm', milestoneId: 'ms-pm-data', title: 'Add the remaining 5 projects’ real data', dueDate: '2026-07-05' }),
+  task({ id: 't-pm-7', projectId: 'p-pm', milestoneId: 'ms-pm-data', title: 'Full app working with real data — handover to Prashant for review', description: 'Project-management app now runs on real project data; handing over to Prashant Bhaiya for review.', status: 'in_progress', dueDate: '2026-07-06', participantIds: ['m-prashant'] }),
+
+  // ═══ General (tasks not tied to a specific project) ═══
+  task({ id: 't-gen-1', projectId: 'p-general', milestoneId: null, title: 'Brainstorm with Claude: review work done so far, how to organize it, and set deadlines', dueDate: '2026-07-05' }),
 ]
 
 // ── Auto-generate the Activity feed from the task/phase data ──────────────────
@@ -298,7 +326,7 @@ function finalize(list: Task[]): Task[] {
 export function buildSeed(): TimelineData {
   const base = recompute({ members, projects, phases, milestones, tasks: finalize(tasks), activity: [] })
   const activity = generateActivity(base)
-  return JSON.parse(JSON.stringify({ ...base, activity })) as TimelineData
+  return JSON.parse(JSON.stringify({ ...base, activity, seedVersion: SEED_VERSION })) as TimelineData
 }
 
-export const SEED_VERSION = 6
+export const SEED_VERSION = 7

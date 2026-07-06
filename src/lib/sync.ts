@@ -1,6 +1,7 @@
 import type { TimelineData } from './types'
 import { STATE_ROW_ID, supabase } from './supabase'
 import { useStore } from './store'
+import { SEED_VERSION } from './seed'
 
 // ─────────────────────────────────────────────────────────────────────────────
 // Cloud sync — the whole app graph is stored as one JSON row in Postgres.
@@ -78,13 +79,18 @@ function scheduleSave() {
 }
 
 let remoteWasEmpty = false
+// Remote row exists but was built from an older bundled seed → the app ships
+// newer authoritative data. An editor re-pushes the fresh graph to upgrade it.
+let remoteNeedsUpgrade = false
 
-async function seedFromLocal() {
+/** Push the local (freshly-seeded) graph up, replacing whatever is in the DB. */
+async function pushLocal() {
   const local = useStore.getState().data
   lastSyncedJson = JSON.stringify(local)
   const ok = await saveRemote(local)
   if (ok) {
     remoteWasEmpty = false
+    remoteNeedsUpgrade = false
     setStatus('synced')
   }
 }
@@ -93,8 +99,9 @@ async function seedFromLocal() {
 let canEdit = false
 export function setCanEdit(v: boolean) {
   canEdit = v
-  // First editor to arrive seeds an empty database from the real bundled data.
-  if (v && remoteWasEmpty) void seedFromLocal()
+  // First editor to arrive seeds an empty DB — or upgrades an out-of-date one —
+  // from the real bundled data.
+  if (v && (remoteWasEmpty || remoteNeedsUpgrade)) void pushLocal()
   if (status !== 'off') setStatus(v ? 'synced' : 'readonly')
 }
 
@@ -107,15 +114,22 @@ export async function initSync(): Promise<void> {
   setStatus('connecting')
 
   const remote = await loadRemote()
-  if (remote) {
+  if (remote && (remote.seedVersion ?? 0) >= SEED_VERSION) {
+    // Remote is current → adopt it.
     lastSyncedJson = JSON.stringify(remote)
     applyingRemote = true
     useStore.setState({ data: remote })
     applyingRemote = false
+  } else if (remote) {
+    // Remote exists but predates the current bundled seed. Keep the fresh local
+    // seed on screen (already loaded by the store's version migration) and push
+    // it up to upgrade the DB once an editor is present.
+    remoteNeedsUpgrade = true
+    if (canEdit) await pushLocal()
   } else {
     // DB row is empty → seed it now if an editor is present, else wait for one.
     remoteWasEmpty = true
-    if (canEdit) await seedFromLocal()
+    if (canEdit) await pushLocal()
   }
   setStatus(canEdit ? 'synced' : 'readonly')
 
