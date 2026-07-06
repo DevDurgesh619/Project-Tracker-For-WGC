@@ -51,7 +51,7 @@ import {
   tasksForMilestone,
 } from '@/lib/selectors'
 import { PHASE_LABEL, PHASE_SEQUENCE } from '@/lib/types'
-import type { RollupStatus, Task } from '@/lib/types'
+import type { Phase, RollupStatus, Task } from '@/lib/types'
 import { fmtDate, totalDays } from '@/lib/utils'
 
 function rollupColor(s: RollupStatus, _accent: string): string {
@@ -83,6 +83,7 @@ export function ProjectDetail() {
   const addMilestone = useStore((s) => s.addMilestone)
   const advanceProject = useStore((s) => s.advanceProject)
   const deleteProject = useStore((s) => s.deleteProject)
+  const deletePhase = useStore((s) => s.deletePhase)
   const navigate = useNavigate()
 
   const [openTaskId, setOpenTaskId] = useState<string | null>(null)
@@ -91,6 +92,7 @@ export function ProjectDetail() {
   const [newMilestone, setNewMilestone] = useState('')
   const [confirmDelete, setConfirmDelete] = useState(false)
   const [deleteText, setDeleteText] = useState('')
+  const [phaseToDelete, setPhaseToDelete] = useState<Phase | null>(null)
 
   const project = data.projects.find((p) => p.id === id)
   if (!project) {
@@ -203,6 +205,50 @@ export function ProjectDetail() {
         />
       </Modal>
 
+      {phaseToDelete && (() => {
+        const ms = milestonesForPhase(data, phaseToDelete.id)
+        const msIds = new Set(ms.map((m) => m.id))
+        const taskCount = data.tasks.filter((t) => t.milestoneId && msIds.has(t.milestoneId)).length
+        const hasWork = ms.length > 0 || taskCount > 0
+        return (
+          <Modal
+            open
+            onClose={() => setPhaseToDelete(null)}
+            title={`Remove ${phaseToDelete.label} phase`}
+            footer={
+              <div className="flex justify-end gap-2">
+                <Button variant="secondary" onClick={() => setPhaseToDelete(null)}>
+                  Cancel
+                </Button>
+                <Button
+                  variant="primary"
+                  className="!bg-[var(--danger)] hover:!opacity-90"
+                  onClick={() => {
+                    deletePhase(phaseToDelete.id)
+                    setPhaseToDelete(null)
+                  }}
+                >
+                  <Trash2 size={16} /> Remove phase
+                </Button>
+              </div>
+            }
+          >
+            {hasWork ? (
+              <p className="text-sm text-[var(--muted)]">
+                This removes the <strong className="text-[var(--text)]">{phaseToDelete.label}</strong> phase along
+                with its {ms.length} milestone{ms.length === 1 ? '' : 's'} and {taskCount} task
+                {taskCount === 1 ? '' : 's'}. This cannot be undone.
+              </p>
+            ) : (
+              <p className="text-sm text-[var(--muted)]">
+                This removes the empty <strong className="text-[var(--text)]">{phaseToDelete.label}</strong> phase.
+                No milestones or tasks will be affected.
+              </p>
+            )}
+          </Modal>
+        )
+      })()}
+
       <div className="grid grid-cols-1 lg:grid-cols-3 gap-5">
         {/* Overview */}
         <div className="lg:col-span-1 space-y-5">
@@ -278,9 +324,20 @@ export function ProjectDetail() {
                     </div>
                   </div>
                   {isAdmin && (
-                    <Button size="sm" variant="ghost" className="ml-auto" onClick={() => setAddingFor(phase.id)}>
-                      <Plus size={14} /> Milestone
-                    </Button>
+                    <div className="ml-auto flex items-center gap-1">
+                      <Button size="sm" variant="ghost" onClick={() => setAddingFor(phase.id)}>
+                        <Plus size={14} /> Milestone
+                      </Button>
+                      <Button
+                        size="sm"
+                        variant="ghost"
+                        className="text-[var(--danger)]"
+                        title="Remove this phase"
+                        onClick={() => setPhaseToDelete(phase)}
+                      >
+                        <Trash2 size={14} />
+                      </Button>
+                    </div>
                   )}
                 </div>
 

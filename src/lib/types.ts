@@ -46,6 +46,7 @@ export type ActivityKind =
   | 'project_deleted'
   | 'phase_added'
   | 'phase_completed'
+  | 'phase_deleted'
   | 'milestone_added'
   | 'milestone_completed'
   | 'task_created'

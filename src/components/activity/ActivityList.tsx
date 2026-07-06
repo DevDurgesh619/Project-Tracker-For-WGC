@@ -28,6 +28,7 @@ const META: Record<ActivityKind, { icon: typeof Check; color: string }> = {
   project_deleted: { icon: Trash2, color: 'var(--danger)' },
   phase_added: { icon: Plus, color: 'var(--brand)' },
   phase_completed: { icon: CheckCircle2, color: 'var(--ok)' },
+  phase_deleted: { icon: Trash2, color: 'var(--danger)' },
   milestone_added: { icon: Plus, color: 'var(--brand)' },
   milestone_completed: { icon: Target, color: 'var(--ok)' },
   task_created: { icon: Plus, color: 'var(--muted)' },

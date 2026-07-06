@@ -87,6 +87,7 @@ interface StoreState {
   updateMilestone: (id: string, patch: Partial<Milestone>) => void
   deleteMilestone: (id: string) => void
   addPhase: (projectId: string, kind: PhaseKind) => string
+  deletePhase: (id: string) => void
   advanceProject: (projectId: string) => void
 
   // projects
@@ -463,6 +464,31 @@ export const useStore = create<StoreState>()(
             evt('phase_added', { projectId, phaseId: id, summary: `Added ${PHASE_LABEL[kind]} phase` }),
           ])
           return id
+        },
+
+        deletePhase: (id) => {
+          const data = get().data
+          const phase = data.phases.find((p) => p.id === id)
+          if (!phase) return
+          const msIds = new Set(data.milestones.filter((m) => m.phaseId === id).map((m) => m.id))
+          const removed = new Set(
+            data.tasks.filter((t) => t.milestoneId && msIds.has(t.milestoneId)).map((t) => t.id),
+          )
+          commit(
+            {
+              ...data,
+              phases: data.phases.filter((p) => p.id !== id),
+              milestones: data.milestones.filter((m) => m.phaseId !== id),
+              tasks: data.tasks
+                .filter((t) => !removed.has(t.id))
+                .map((t) =>
+                  t.dependsOn.some((d) => removed.has(d))
+                    ? { ...t, dependsOn: t.dependsOn.filter((d) => !removed.has(d)) }
+                    : t,
+                ),
+            },
+            [evt('phase_deleted', { projectId: phase.projectId, phaseId: id, summary: `Removed ${phase.label} phase` })],
+          )
         },
 
         advanceProject: (projectId) => {
