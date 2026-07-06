@@ -93,6 +93,7 @@ interface StoreState {
   addProject: (input: NewProjectInput) => string
   addProjectFromTemplate: (input: NewProjectInput, template: ProjectTemplate) => string
   updateProject: (id: string, patch: Partial<Project>) => void
+  deleteProject: (id: string) => void
 }
 
 const PALETTE = ['#4f46e5', '#0891b2', '#16a34a', '#d97706', '#db2777', '#9333ea']
@@ -563,6 +564,31 @@ export const useStore = create<StoreState>()(
 
         updateProject: (id, p) =>
           commit({ ...get().data, projects: get().data.projects.map((x) => (x.id === id ? { ...x, ...p } : x)) }),
+
+        deleteProject: (id) => {
+          const data = get().data
+          const project = data.projects.find((p) => p.id === id)
+          if (!project) return
+          const removed = new Set(data.tasks.filter((t) => t.projectId === id).map((t) => t.id))
+          commit(
+            {
+              ...data,
+              projects: data.projects.filter((p) => p.id !== id),
+              phases: data.phases.filter((ph) => ph.projectId !== id),
+              milestones: data.milestones.filter((m) => m.projectId !== id),
+              tasks: data.tasks
+                .filter((t) => t.projectId !== id)
+                .map((t) =>
+                  t.dependsOn.some((d) => removed.has(d))
+                    ? { ...t, dependsOn: t.dependsOn.filter((d) => !removed.has(d)) }
+                    : t,
+                ),
+              // drop activity that pointed at the now-deleted project
+              activity: data.activity.filter((a) => a.projectId !== id),
+            },
+            [evt('project_deleted', { summary: `Deleted project “${project.name}”` })],
+          )
+        },
       }
     },
     {

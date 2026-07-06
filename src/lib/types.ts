@@ -43,6 +43,7 @@ export type ChangeRequestStatus = 'pending' | 'approved' | 'rejected'
 export type ActivityKind =
   | 'project_created'
   | 'project_shipped'
+  | 'project_deleted'
   | 'phase_added'
   | 'phase_completed'
   | 'milestone_added'

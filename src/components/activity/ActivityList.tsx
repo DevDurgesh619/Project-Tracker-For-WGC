@@ -11,6 +11,7 @@ import {
   Plus,
   Rocket,
   Target,
+  Trash2,
   X,
 } from 'lucide-react'
 import { Avatar, EmptyState } from '@/components/ui'
@@ -24,6 +25,7 @@ import { format } from 'date-fns'
 const META: Record<ActivityKind, { icon: typeof Check; color: string }> = {
   project_created: { icon: FolderPlus, color: 'var(--info)' },
   project_shipped: { icon: Rocket, color: 'var(--ok)' },
+  project_deleted: { icon: Trash2, color: 'var(--danger)' },
   phase_added: { icon: Plus, color: 'var(--brand)' },
   phase_completed: { icon: CheckCircle2, color: 'var(--ok)' },
   milestone_added: { icon: Plus, color: 'var(--brand)' },

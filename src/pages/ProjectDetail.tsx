@@ -1,5 +1,5 @@
 import { useState } from 'react'
-import { Link, useParams } from 'react-router-dom'
+import { Link, useNavigate, useParams } from 'react-router-dom'
 import {
   ArrowLeft,
   ArrowRight,
@@ -11,6 +11,7 @@ import {
   Loader2,
   Plus,
   Target,
+  Trash2,
   Users,
 } from 'lucide-react'
 import { PageHeader } from '@/components/layout/PageHeader'
@@ -25,6 +26,7 @@ import {
   DeadlinePill,
   EmptyState,
   Input,
+  Modal,
   ProgressRing,
   StatusBadge,
 } from '@/components/ui'
@@ -80,11 +82,15 @@ export function ProjectDetail() {
   const isAdmin = me?.role === 'admin' && canEdit
   const addMilestone = useStore((s) => s.addMilestone)
   const advanceProject = useStore((s) => s.advanceProject)
+  const deleteProject = useStore((s) => s.deleteProject)
+  const navigate = useNavigate()
 
   const [openTaskId, setOpenTaskId] = useState<string | null>(null)
   const [taskForm, setTaskForm] = useState<{ projectId: string; milestoneId?: string } | null>(null)
   const [addingFor, setAddingFor] = useState<string | null>(null) // phaseId
   const [newMilestone, setNewMilestone] = useState('')
+  const [confirmDelete, setConfirmDelete] = useState(false)
+  const [deleteText, setDeleteText] = useState('')
 
   const project = data.projects.find((p) => p.id === id)
   if (!project) {
@@ -141,9 +147,61 @@ export function ProjectDetail() {
                 <Plus size={16} /> Add task
               </Button>
             )}
+            {isAdmin && (
+              <Button
+                variant="ghost"
+                className="text-[var(--danger)]"
+                onClick={() => {
+                  setDeleteText('')
+                  setConfirmDelete(true)
+                }}
+              >
+                <Trash2 size={16} /> Delete
+              </Button>
+            )}
           </div>
         }
       />
+
+      <Modal
+        open={confirmDelete}
+        onClose={() => setConfirmDelete(false)}
+        title="Delete project"
+        footer={
+          <div className="flex justify-end gap-2">
+            <Button variant="secondary" onClick={() => setConfirmDelete(false)}>
+              Cancel
+            </Button>
+            <Button
+              variant="primary"
+              className="!bg-[var(--danger)] hover:!opacity-90"
+              disabled={deleteText.trim() !== project.name}
+              onClick={() => {
+                deleteProject(project.id)
+                setConfirmDelete(false)
+                navigate('/projects')
+              }}
+            >
+              <Trash2 size={16} /> Delete forever
+            </Button>
+          </div>
+        }
+      >
+        <p className="text-sm text-[var(--muted)]">
+          This permanently removes <strong className="text-[var(--text)]">{project.name}</strong> and all of its
+          phases, milestones, and tasks. This cannot be undone.
+        </p>
+        <p className="mt-3 text-sm text-[var(--muted)]">
+          Type the project name to confirm:
+        </p>
+        <Input
+          className="mt-1.5"
+          autoFocus
+          value={deleteText}
+          onChange={(e) => setDeleteText(e.target.value)}
+          placeholder={project.name}
+        />
+      </Modal>
 
       <div className="grid grid-cols-1 lg:grid-cols-3 gap-5">
         {/* Overview */}
