@@ -5,6 +5,7 @@ import type {
   ActivityKind,
   Blocker,
   ChangeRequest,
+  DayNote,
   Milestone,
   Note,
   NoteKind,
@@ -95,6 +96,11 @@ interface StoreState {
   addProjectFromTemplate: (input: NewProjectInput, template: ProjectTemplate) => string
   updateProject: (id: string, patch: Partial<Project>) => void
   deleteProject: (id: string) => void
+
+  // day notes (holidays / context pinned to a date)
+  addDayNote: (input: { date: string; endDate?: string | null; kind?: DayNote['kind']; body: string }) => string
+  updateDayNote: (id: string, patch: Partial<Pick<DayNote, 'date' | 'endDate' | 'kind' | 'body'>>) => void
+  deleteDayNote: (id: string) => void
 }
 
 const PALETTE = ['#4f46e5', '#0891b2', '#16a34a', '#d97706', '#db2777', '#9333ea']
@@ -590,6 +596,31 @@ export const useStore = create<StoreState>()(
 
         updateProject: (id, p) =>
           commit({ ...get().data, projects: get().data.projects.map((x) => (x.id === id ? { ...x, ...p } : x)) }),
+
+        addDayNote: (input) => {
+          const note: DayNote = {
+            id: uid(),
+            date: input.date,
+            endDate: input.endDate ?? null,
+            kind: input.kind ?? 'note',
+            body: input.body.trim(),
+            authorId: get().currentUserId,
+            createdAt: nowISO(),
+          }
+          commit({ ...get().data, dayNotes: [...(get().data.dayNotes ?? []), note] })
+          return note.id
+        },
+
+        updateDayNote: (id, p) =>
+          commit({
+            ...get().data,
+            dayNotes: (get().data.dayNotes ?? []).map((n) =>
+              n.id === id ? { ...n, ...p, body: (p.body ?? n.body).trim() } : n,
+            ),
+          }),
+
+        deleteDayNote: (id) =>
+          commit({ ...get().data, dayNotes: (get().data.dayNotes ?? []).filter((n) => n.id !== id) }),
 
         deleteProject: (id) => {
           const data = get().data

@@ -80,6 +80,21 @@ export interface Note {
   kind: NoteKind
 }
 
+/** A free-text annotation pinned to a day (or a span of days) — e.g. a holiday,
+ *  a leave, or context explaining why a day has no work. Not tied to a project. */
+export interface DayNote {
+  id: string
+  /** ISO date 'YYYY-MM-DD' (start of the span) */
+  date: string
+  /** inclusive end of the span; null = single day */
+  endDate: string | null
+  kind: 'holiday' | 'note'
+  body: string
+  authorId: string
+  /** ISO datetime */
+  createdAt: string
+}
+
 export interface Blocker {
   reason: string
   /** if true, this blocker holds up the whole project's completion */
@@ -216,6 +231,8 @@ export interface TimelineData {
   milestones: Milestone[]
   tasks: Task[]
   activity: ActivityEvent[]
+  /** Day-level annotations (holidays, leave, context). */
+  dayNotes: DayNote[]
   /** Version of the bundled authoritative seed this graph was built from.
    *  Used by cloud sync to detect when the app ships newer canonical data. */
   seedVersion?: number

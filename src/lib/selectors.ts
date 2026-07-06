@@ -2,6 +2,7 @@
 // colour, durations, roll-ups, and "where we reached" stay consistent. See CLAUDE.md.
 import type {
   ActivityEvent,
+  DayNote,
   DeadlineState,
   Member,
   Milestone,
@@ -12,6 +13,11 @@ import type {
   TimelineData,
 } from './types'
 import { daysFromToday, durationHours, pct, totalDays } from './utils'
+
+/** Day notes (holidays / context) that cover a given ISO date 'YYYY-MM-DD'. */
+export function dayNotesForDate(data: TimelineData, iso: string): DayNote[] {
+  return (data.dayNotes ?? []).filter((n) => iso >= n.date && iso <= (n.endDate ?? n.date))
+}
 
 /** 🔴 overdue / 🟡 due soon / 🟢 comfortable. Done or no-due → 'none'. */
 export function deadlineStatus(task: Task): DeadlineState {

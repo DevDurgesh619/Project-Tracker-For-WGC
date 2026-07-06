@@ -1,6 +1,7 @@
 import type {
   ActivityEvent,
   ActivityKind,
+  DayNote,
   Member,
   Milestone,
   Phase,
@@ -267,6 +268,11 @@ const tasks: Task[] = [
   task({ id: 't-gen-1', projectId: 'p-general', milestoneId: null, title: 'Brainstorm with Claude: review work done so far, how to organize it, and set deadlines', dueDate: '2026-07-05' }),
 ]
 
+// ── Day notes (holidays / context pinned to dates) ───────────────────────────
+const dayNotes: DayNote[] = [
+  { id: 'dn-gurugram', date: '2026-06-27', endDate: '2026-06-29', kind: 'holiday', body: 'Holiday — Gurugram, chilling with friends.', authorId: 'm-durgesh', createdAt: '2026-06-27T09:00:00.000Z' },
+]
+
 // ── Auto-generate the Activity feed from the task/phase data ──────────────────
 function mkEv(
   id: string,
@@ -324,9 +330,9 @@ function finalize(list: Task[]): Task[] {
 }
 
 export function buildSeed(): TimelineData {
-  const base = recompute({ members, projects, phases, milestones, tasks: finalize(tasks), activity: [] })
+  const base = recompute({ members, projects, phases, milestones, tasks: finalize(tasks), activity: [], dayNotes })
   const activity = generateActivity(base)
-  return JSON.parse(JSON.stringify({ ...base, activity, seedVersion: SEED_VERSION })) as TimelineData
+  return JSON.parse(JSON.stringify({ ...base, activity, dayNotes, seedVersion: SEED_VERSION })) as TimelineData
 }
 
-export const SEED_VERSION = 7
+export const SEED_VERSION = 8
