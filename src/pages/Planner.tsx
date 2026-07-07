@@ -5,7 +5,6 @@ import {
   eachDayOfInterval,
   endOfWeek,
   format,
-  isSameDay,
   isToday,
   startOfWeek,
 } from 'date-fns'
@@ -18,7 +17,7 @@ import { useData } from '@/lib/hooks'
 import { useCanEdit } from '@/lib/auth'
 import { useStore } from '@/lib/store'
 import { dayNotesForDate, memberById, projectById } from '@/lib/selectors'
-import { cn, toDate } from '@/lib/utils'
+import { cn } from '@/lib/utils'
 import type { DayNote, Task } from '@/lib/types'
 
 export function Planner() {
@@ -34,10 +33,18 @@ export function Planner() {
   const days = eachDayOfInterval({ start: weekStart, end: endOfWeek(base, { weekStartsOn: 1 }) })
 
   function tasksForDay(day: Date): Task[] {
+    const iso = format(day, 'yyyy-MM-dd')
     return data.tasks
       .filter((t) => {
-        const d = t.scheduledFor ?? t.dueDate
-        return d && isSameDay(toDate(d), day)
+        const s = (t.scheduledFor ?? t.dueDate)?.slice(0, 10)
+        const d = (t.dueDate ?? t.scheduledFor)?.slice(0, 10)
+        if (!s || !d) return false
+        const lo = s < d ? s : d
+        const hi = s < d ? d : s
+        // A finished task only shows on its deadline day (keeps past days tidy);
+        // an active task spans every day from its planned start through its
+        // deadline, so it keeps showing up until you mark it done.
+        return t.status === 'done' ? iso === d : iso >= lo && iso <= hi
       })
       .sort((a, b) => Number(a.status === 'done') - Number(b.status === 'done'))
   }
@@ -139,7 +146,14 @@ export function Planner() {
                     <div className="min-h-[48px] grid place-items-center text-[12px] text-[var(--faint)]">—</div>
                   )
                 ) : (
-                  dayTasks.map((t) => <PlannerCard key={t.id} task={t} onOpen={() => setOpenTaskId(t.id)} />)
+                  dayTasks.map((t) => (
+                    <PlannerCard
+                      key={t.id}
+                      task={t}
+                      dueToday={(t.dueDate ?? '').slice(0, 10) === iso && t.status !== 'done'}
+                      onOpen={() => setOpenTaskId(t.id)}
+                    />
+                  ))
                 )}
               </div>
             </div>
@@ -279,7 +293,7 @@ function DayNoteModal({
   )
 }
 
-function PlannerCard({ task, onOpen }: { task: Task; onOpen: () => void }) {
+function PlannerCard({ task, dueToday, onOpen }: { task: Task; dueToday?: boolean; onOpen: () => void }) {
   const data = useData()
   const project = projectById(data, task.projectId)
   const assignee = memberById(data, task.assigneeId)
@@ -297,6 +311,11 @@ function PlannerCard({ task, onOpen }: { task: Task; onOpen: () => void }) {
       <div className="flex items-center flex-wrap gap-1.5 mt-2">
         <Avatar member={assignee} size="xs" />
         <StatusBadge status={task.status} />
+        {dueToday && (
+          <span className="rounded-full bg-[var(--danger-soft)] px-1.5 text-[10px] font-semibold uppercase tracking-wide text-[var(--danger)]">
+            Due
+          </span>
+        )}
         {task.recurrence !== 'none' && <Repeat size={12} className="text-[var(--brand)]" />}
         {task.estimateHours != null && (
           <span className="text-[11px] text-[var(--faint)] tabular-nums">{task.estimateHours}h</span>
